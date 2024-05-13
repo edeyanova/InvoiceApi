@@ -1,6 +1,7 @@
 package com.example.invoiceapi.controllers
 
 import com.example.invoiceapi.entities.Invoice
+import com.example.invoiceapi.exceptions.InvoiceNotFoundException
 import com.example.invoiceapi.services.InvoiceService
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -27,10 +28,13 @@ class InvoiceController {
         invoiceService.getAllInvoices()
     }
 
-
     @GetMapping("/{id}")
-    Invoice getInvoiceById(@PathVariable Long id) {
-        invoiceService.getInvoiceById(id)
+    Invoice getInvoiceById(@PathVariable("id") Long id) {
+        try {
+            invoiceService.getInvoiceById(id)
+        } catch (InvoiceNotFoundException e) {
+            throw e
+        }
     }
 
     @PostMapping
@@ -40,13 +44,13 @@ class InvoiceController {
     }
 
     @PutMapping("/{id}")
-    Invoice updateInvoice(@PathVariable Long id, @RequestBody Invoice invoice) {
+    Invoice updateInvoice(@PathVariable("id") Long id, @RequestBody Invoice invoice) {
         invoiceService.updateInvoice(id, invoice)
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    void deleteInvoice(@PathVariable Long id) {
+    void deleteInvoice(@PathVariable("id") Long id) {
         invoiceService.deleteInvoice(id)
     }
 }

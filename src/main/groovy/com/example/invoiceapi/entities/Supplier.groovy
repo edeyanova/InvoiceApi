@@ -10,4 +10,12 @@ class Supplier {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id
     String name
+
+    Supplier(String name) {
+        this.name = name;
+    }
+
+    Supplier() {
+
+    }
 }
