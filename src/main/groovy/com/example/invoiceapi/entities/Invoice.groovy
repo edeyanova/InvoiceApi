@@ -1,6 +1,10 @@
 package com.example.invoiceapi.entities
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import jakarta.persistence.CascadeType
+import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
@@ -24,6 +28,7 @@ class Invoice {
     @ManyToOne
     Supplier supplier
 
-    @OneToMany(mappedBy = "invoice")
-    List<Item> items = []
+    @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonIgnoreProperties("invoice")
+    List<Item> items = new ArrayList<>()
 }
