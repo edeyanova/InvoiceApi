@@ -1,6 +1,7 @@
 package com.example.invoiceapi.controllers
 
 import com.example.invoiceapi.entities.Invoice
+import com.example.invoiceapi.exceptions.InvalidInputException
 import com.example.invoiceapi.exceptions.InvoiceNotFoundException
 import com.example.invoiceapi.services.InvoiceService
 import org.springframework.http.HttpStatus
@@ -40,11 +41,13 @@ class InvoiceController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     Invoice createInvoice(@RequestBody Invoice invoice) {
+        validateInvoice(invoice)
         invoiceService.createInvoice(invoice)
     }
 
     @PutMapping("/{id}")
     Invoice updateInvoice(@PathVariable("id") Long id, @RequestBody Invoice invoice) {
+        validateInvoice(invoice)
         invoiceService.updateInvoice(id, invoice)
     }
 
@@ -52,5 +55,20 @@ class InvoiceController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void deleteInvoice(@PathVariable("id") Long id) {
         invoiceService.deleteInvoice(id)
+    }
+
+    private void validateInvoice(Invoice invoice) {
+        if (invoice.number == null || invoice.number.isEmpty()) {
+            throw new InvalidInputException("Invoice number must not be empty")
+        }
+        if (invoice.buyer == null || invoice.buyer.name == null || invoice.buyer.name.isEmpty()) {
+            throw new InvalidInputException("Buyer information is required")
+        }
+        if (invoice.supplier == null || invoice.supplier.name == null || invoice.supplier.name.isEmpty()) {
+            throw new InvalidInputException("Supplier information is required")
+        }
+        if (invoice.items == null || invoice.items.isEmpty()) {
+            throw new InvalidInputException("Invoice must contain at least one item")
+        }
     }
 }

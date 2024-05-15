@@ -35,8 +35,8 @@ class InvoiceService {
 
     @Transactional
     Invoice getInvoiceById(Long id) {
-        def invoice = invoiceRepository.findById(id)
-        invoice.orElseThrow { new InvoiceNotFoundException(id) }
+        invoiceRepository.findById(id)
+                .orElseThrow { new InvoiceNotFoundException(id) }
     }
 
     @Transactional
@@ -82,7 +82,7 @@ class InvoiceService {
             if (invoice.supplier.id != null) {
                 Supplier existingSupplier = supplierRepository.findById(invoice.supplier.id)
                         .orElseThrow { new IllegalArgumentException("Invalid Supplier ID: " + invoice.supplier.id) }
-                existingSupplier.name = invoice.supplier.name // Update other supplier fields as needed
+                existingSupplier.name = invoice.supplier.name
                 existingInvoice.supplier = supplierRepository.save(existingSupplier)
             } else {
                 existingInvoice.supplier = supplierRepository.save(invoice.supplier)
