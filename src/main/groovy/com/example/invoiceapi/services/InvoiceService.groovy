@@ -11,6 +11,7 @@ import com.example.invoiceapi.repositories.ItemRepository
 import com.example.invoiceapi.repositories.SupplierRepository
 import jakarta.transaction.Transactional
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.stereotype.Service
 
 @Service
@@ -107,6 +108,9 @@ class InvoiceService {
 
     @Transactional
     void deleteInvoice(Long id) {
+        if (!invoiceRepository.existsById(id)) {
+            throw new InvoiceNotFoundException(id)
+        }
         invoiceRepository.deleteById(id)
     }
 }
