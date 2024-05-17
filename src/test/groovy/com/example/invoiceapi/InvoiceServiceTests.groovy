@@ -4,6 +4,7 @@ import com.example.invoiceapi.entities.Buyer
 import com.example.invoiceapi.entities.Invoice
 import com.example.invoiceapi.entities.Item
 import com.example.invoiceapi.entities.Supplier
+import com.example.invoiceapi.exceptions.InvoiceNotFoundException
 import com.example.invoiceapi.repositories.BuyerRepository
 import com.example.invoiceapi.repositories.InvoiceRepository
 import com.example.invoiceapi.repositories.ItemRepository
@@ -19,8 +20,8 @@ import java.time.LocalDate
 import static org.assertj.core.api.Assertions.assertThat
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.anyList
+import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.junit.jupiter.api.Assertions.assertThrows
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*
 
 @SpringBootTest
@@ -67,6 +68,16 @@ class InvoiceServiceTests {
     }
 
     @Test
+    void shouldThrowExceptionWhenInvoiceNotFound() {
+        when(invoiceRepository.findById(1L)).thenReturn(Optional.empty())
+
+        InvoiceNotFoundException exception = assertThrows(InvoiceNotFoundException.class, {
+            invoiceService.getInvoiceById(1L)
+        })
+        assertEquals("Invoice not found with id: 1", exception.getMessage())
+    }
+
+    @Test
     void shouldCreateInvoice() {
         Buyer buyer = new Buyer(id: null, name: "ABC Company")
         Supplier supplier = new Supplier(id: null, name: "XYZ Supplier")
@@ -101,15 +112,6 @@ class InvoiceServiceTests {
     }
 
     @Test
-    void shouldDeleteInvoiceById() {
-        when(invoiceRepository.existsById(anyLong())).thenReturn(true);
-
-        invoiceService.deleteInvoice(1L);
-
-        verify(invoiceRepository, times(1)).deleteById(1L);
-    }
-
-    @Test
     void shouldUpdateInvoice() {
         Invoice invoice = new Invoice()
         invoice.setId(1L)
@@ -128,5 +130,24 @@ class InvoiceServiceTests {
         verify(invoiceRepository, times(1)).save(anotherInvoice)
 
         assertEquals(anotherInvoice, updatedInvoice)
+    }
+
+    @Test
+    void shouldDeleteInvoiceById() {
+        when(invoiceRepository.existsById(anyLong())).thenReturn(true);
+
+        invoiceService.deleteInvoice(1L);
+
+        verify(invoiceRepository, times(1)).deleteById(1L);
+    }
+
+    @Test
+    void shouldThrowExceptionWhenDeletingNotExistingInvoice() {
+        when(invoiceRepository.findById(1L)).thenReturn(Optional.empty())
+
+        InvoiceNotFoundException exception = assertThrows(InvoiceNotFoundException.class, {
+            invoiceService.deleteInvoice(1L)
+        })
+        assertEquals("Invoice not found with id: 1", exception.getMessage())
     }
 }

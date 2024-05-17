@@ -11,7 +11,6 @@ import com.example.invoiceapi.repositories.ItemRepository
 import com.example.invoiceapi.repositories.SupplierRepository
 import jakarta.transaction.Transactional
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.stereotype.Service
 
 @Service
@@ -50,7 +49,7 @@ class InvoiceService {
         }
         if (invoice.getItems() != null) {
             for (Item item : invoice.getItems()) {
-                item.invoice = invoice  // Set the back-reference
+                item.invoice = invoice
             }
             invoice.items = itemRepository.saveAll(invoice.items)
         }
@@ -71,7 +70,9 @@ class InvoiceService {
         if (invoice.buyer != null) {
             if (invoice.buyer.id != null) {
                 Buyer existingBuyer = buyerRepository.findById(invoice.buyer.id)
-                        .orElseThrow { new IllegalArgumentException("Invalid Buyer ID: " + invoice.buyer.id) }
+                        .orElseThrow {
+                            new IllegalArgumentException("Invalid Buyer ID: " + invoice.buyer.id)
+                        }
                 existingBuyer.name = invoice.buyer.name
                 existingInvoice.buyer = buyerRepository.save(existingBuyer)
             } else {
@@ -82,7 +83,9 @@ class InvoiceService {
         if (invoice.supplier != null) {
             if (invoice.supplier.id != null) {
                 Supplier existingSupplier = supplierRepository.findById(invoice.supplier.id)
-                        .orElseThrow { new IllegalArgumentException("Invalid Supplier ID: " + invoice.supplier.id) }
+                        .orElseThrow {
+                            new IllegalArgumentException("Invalid Supplier ID: " + invoice.supplier.id)
+                        }
                 existingSupplier.name = invoice.supplier.name
                 existingInvoice.supplier = supplierRepository.save(existingSupplier)
             } else {
