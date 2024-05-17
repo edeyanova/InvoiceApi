@@ -57,7 +57,7 @@ class InvoiceController {
         invoiceService.deleteInvoice(id)
     }
 
-    private void validateInvoice(Invoice invoice) {
+    private static void validateInvoice(Invoice invoice) {
         if (invoice.number == null || invoice.number.isEmpty()) {
             throw new InvalidInputException("Invoice number must not be empty")
         }

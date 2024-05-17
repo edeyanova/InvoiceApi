@@ -4,19 +4,18 @@ import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
-import jakarta.persistence.OneToMany
+import jakarta.validation.constraints.NotEmpty
 
 @Entity
 class Supplier {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id
+
+    @NotEmpty(message = "Supplier name must not be empty")
     String name
 
-//    @OneToMany(mappedBy = "supplier")
-//    List<Invoice> invoices = []
-
     Supplier(String name) {
-        this.name = name;
+        this.name = name
     }
 
     Supplier() {}

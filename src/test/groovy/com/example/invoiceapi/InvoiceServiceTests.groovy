@@ -82,16 +82,34 @@ class InvoiceServiceTests {
         Buyer buyer = new Buyer(id: null, name: "ABC Company")
         Supplier supplier = new Supplier(id: null, name: "XYZ Supplier")
 
-        Item item1 = new Item(itemId: null, name: "Item 1", quantity: 2, amount: new BigDecimal("10.0"))
-        Item item2 = new Item(itemId: null, name: "Item 2", quantity: 3, amount: new BigDecimal("20.0"))
-        Invoice invoice = new Invoice(id: null, number: "INV-001", buyer: buyer, supplier: supplier, items: [item1, item2])
+        Item item1 = new Item(
+                itemId: null, name: "Item 1",
+                quantity: 2, amount: new BigDecimal("10.0")
+        )
+        Item item2 = new Item(
+                itemId: null, name: "Item 2",
+                quantity: 3, amount: new BigDecimal("20.0")
+        )
+        Invoice invoice = new Invoice(
+                id: null, number: "INV-001", buyer: buyer,
+                supplier: supplier, items: [item1, item2]
+        )
 
         Buyer savedBuyer = new Buyer(id: 1, name: "ABC Company")
         Supplier savedSupplier = new Supplier(id: 1, name: "XYZ Supplier")
-        Item savedItem1 = new Item(itemId: 1, name: "Item 1", quantity: 2, amount: new BigDecimal("10.0"))
-        Item savedItem2 = new Item(itemId: 2, name: "Item 2", quantity: 3, amount: new BigDecimal("20.0"))
+        Item savedItem1 = new Item(
+                itemId: 1, name: "Item 1", quantity: 2,
+                amount: new BigDecimal("10.0")
+        )
+        Item savedItem2 = new Item(
+                itemId: 2, name: "Item 2", quantity: 3,
+                amount: new BigDecimal("20.0")
+        )
         List<Item> savedItems = [savedItem1, savedItem2]
-        Invoice savedInvoice = new Invoice(id: 1, number: "INV-001", buyer: savedBuyer, supplier: savedSupplier, items: savedItems)
+        Invoice savedInvoice = new Invoice(
+                id: 1, number: "INV-001", buyer: savedBuyer,
+                supplier: savedSupplier, items: savedItems
+        )
 
         when(buyerRepository.save(any(Buyer))).thenReturn(savedBuyer)
         when(supplierRepository.save(any(Supplier))).thenReturn(savedSupplier)
