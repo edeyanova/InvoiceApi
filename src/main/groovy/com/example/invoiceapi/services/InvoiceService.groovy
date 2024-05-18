@@ -130,7 +130,7 @@ class InvoiceService {
         invoice.items = itemRepository.saveAll(invoice.items)
     }
 
-    private void updateInvoiceDetails(Invoice existingInvoice, Invoice updatedInvoice) {
+    private static void updateInvoiceDetails(Invoice existingInvoice, Invoice updatedInvoice) {
         existingInvoice.number = updatedInvoice.number
         existingInvoice.invoiceDate = updatedInvoice.invoiceDate
         existingInvoice.dueDate = updatedInvoice.dueDate
@@ -140,7 +140,7 @@ class InvoiceService {
         Buyer updatedInvoiceBuyer = updatedInvoice.buyer
 
         if (updatedInvoiceBuyer != null) {
-            //indicates an existing buyer
+            // Indicates an existing buyer
             if (updatedInvoiceBuyer.id != null) {
                 Buyer existingBuyer = buyerRepository.findById(updatedInvoiceBuyer.id)
                         .orElseThrow {
@@ -158,7 +158,7 @@ class InvoiceService {
         Supplier updatedInvoiceSupplier = updatedInvoice.supplier
 
         if (updatedInvoiceSupplier != null) {
-            //indicates an existing supplier
+            // Indicates an existing supplier
             if (updatedInvoiceSupplier.id != null) {
                 Supplier existingSupplier = supplierRepository.findById(updatedInvoiceSupplier.id)
                         .orElseThrow {
