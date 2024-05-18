@@ -51,6 +51,29 @@ Once the application is running, you can access the API at http://localhost:8080
   Request Body: JSON representation of an invoice.
   Response: The created invoice.
 
+  Example:
+  ```sh
+    {
+      "number": "001",
+      "buyer": "ABC Company",
+      "supplier": "XYZ Supplier",
+      "items": [
+          {
+              "name": "Product A",
+              "quantity": 2,
+              "amount": 52.00
+          },
+          {
+              "name": "Product B",
+              "quantity": 1,
+              "amount": 105.00
+          }
+      ],
+      "invoiceDate": "2024-05-15",
+      "dueDate": "2024-06-20"
+    }
+  ```
+
 - Update an Existing Invoice:
   PUT /invoices/{id}
 
@@ -62,6 +85,13 @@ Once the application is running, you can access the API at http://localhost:8080
 
   Response: No content.
 
+## In-Memory Database
+The application uses the H2 in-memory database for storing invoice data.
+
+## Running Tests
+```sh
+mvn test
+```
 
 
 
