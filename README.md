@@ -31,7 +31,7 @@ mvn clean install
 mvn clean install
 ```
 
-### Access the apis
+### Access the api
 Once the application is running, you can access the API at http://localhost:8080/invoices.
 
 ## API Endpoints
