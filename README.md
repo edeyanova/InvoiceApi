@@ -30,6 +30,10 @@ mvn clean install
 ```sh
 mvn spring-boot:run
 ```
+or 
+```sh
+java -jar target/invoice-api-0.0.1-SNAPSHOT.jar
+```
 
 ### Access the api
 Once the application is running, you can access the API at http://localhost:8080/invoices.
