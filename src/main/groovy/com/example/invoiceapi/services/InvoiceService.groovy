@@ -140,6 +140,7 @@ class InvoiceService {
         Buyer updatedInvoiceBuyer = updatedInvoice.buyer
 
         if (updatedInvoiceBuyer != null) {
+            //indicates an existing buyer
             if (updatedInvoiceBuyer.id != null) {
                 Buyer existingBuyer = buyerRepository.findById(updatedInvoiceBuyer.id)
                         .orElseThrow {
