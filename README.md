@@ -28,7 +28,7 @@ mvn clean install
 
 ### Run the application
 ```sh
-mvn clean install
+mvn spring-boot:run
 ```
 
 ### Access the api
