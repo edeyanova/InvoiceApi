@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 
+/**
+ * Controller class responsible for handling invoice-related HTTP requests.
+ */
 @RestController
 @RequestMapping("/invoices")
 class InvoiceController {
@@ -24,11 +27,23 @@ class InvoiceController {
         this.invoiceService = invoiceService
     }
 
+    /**
+     * Retrieves all invoices.
+     *
+     * @return A list of all invoices.
+     */
     @GetMapping
     List<Invoice> getAllInvoices() {
         invoiceService.getAllInvoices()
     }
 
+    /**
+     * Retrieves an invoice by its ID.
+     *
+     * @param id The ID of the invoice to retrieve.
+     * @return The invoice with the given ID.
+     * @throws InvoiceNotFoundException If no invoice with the given ID is found.
+     */
     @GetMapping("/{id}")
     Invoice getInvoiceById(@PathVariable("id") Long id) {
         try {
@@ -38,6 +53,12 @@ class InvoiceController {
         }
     }
 
+    /**
+     * Creates a new invoice.
+     *
+     * @param invoice The invoice to create.
+     * @return The created invoice.
+     */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     Invoice createInvoice(@RequestBody Invoice invoice) {
@@ -45,12 +66,24 @@ class InvoiceController {
         invoiceService.createInvoice(invoice)
     }
 
+    /**
+     * Updates an existing invoice.
+     *
+     * @param id      The ID of the invoice to update.
+     * @param invoice The updated invoice data.
+     * @return The updated invoice.
+     */
     @PutMapping("/{id}")
     Invoice updateInvoice(@PathVariable("id") Long id, @RequestBody Invoice invoice) {
         validateInvoice(invoice)
         invoiceService.updateInvoice(id, invoice)
     }
 
+    /**
+     * Deletes an invoice by its ID.
+     *
+     * @param id The ID of the invoice to delete.
+     */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void deleteInvoice(@PathVariable("id") Long id) {

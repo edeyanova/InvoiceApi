@@ -10,110 +10,182 @@ import com.example.invoiceapi.repositories.InvoiceRepository
 import com.example.invoiceapi.repositories.ItemRepository
 import com.example.invoiceapi.repositories.SupplierRepository
 import jakarta.transaction.Transactional
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
+/**
+ * Service class responsible for handling operations related to invoices.
+ */
 @Service
 class InvoiceService {
 
-    @Autowired
-    InvoiceRepository invoiceRepository
+    private final InvoiceRepository invoiceRepository
+    private final BuyerRepository buyerRepository
+    private final SupplierRepository supplierRepository
+    private final ItemRepository itemRepository
 
-    @Autowired
-    BuyerRepository buyerRepository;
+    InvoiceService(InvoiceRepository invoiceRepository, BuyerRepository buyerRepository,
+                   SupplierRepository supplierRepository, ItemRepository itemRepository) {
+        this.invoiceRepository = invoiceRepository
+        this.buyerRepository = buyerRepository
+        this.supplierRepository = supplierRepository
+        this.itemRepository = itemRepository
+    }
 
-    @Autowired
-    SupplierRepository supplierRepository;
-
-    @Autowired
-    ItemRepository itemRepository;
-
+    /**
+     * Retrieves all invoices.
+     *
+     * @return a list of all invoices
+     */
     @Transactional
     List<Invoice> getAllInvoices() {
         invoiceRepository.findAll()
     }
 
+    /**
+     * Retrieves an invoice by its ID.
+     *
+     * @param id the ID of the invoice to retrieve
+     * @return the invoice with the given ID
+     * @throws InvoiceNotFoundException if no invoice with the given ID is found
+     */
     @Transactional
     Invoice getInvoiceById(Long id) {
         invoiceRepository.findById(id)
                 .orElseThrow { new InvoiceNotFoundException(id) }
     }
 
+    /**
+     * Creates a new invoice.
+     *
+     * @param invoice the invoice to create
+     * @return the created invoice
+     */
     @Transactional
     Invoice createInvoice(Invoice invoice) {
-        if (invoice.buyer != null && invoice.buyer.id == null) {
-            invoice.buyer = buyerRepository.save(invoice.buyer)
-        }
-        if (invoice.supplier != null && invoice.supplier.id == null) {
-            invoice.supplier = supplierRepository.save(invoice.supplier)
-        }
-        if (invoice.getItems() != null) {
-            for (Item item : invoice.getItems()) {
-                item.invoice = invoice
-            }
-            invoice.items = itemRepository.saveAll(invoice.items)
-        }
+        saveBuyerIfNecessary(invoice)
+        saveSupplierIfNecessary(invoice)
+        saveItemsIfNecessary(invoice)
 
         return invoiceRepository.save(invoice)
     }
 
+    /**
+     * Updates an existing invoice with the provided ID
+     * using the details from the updated invoice object.
+     *
+     * @param id The ID of the invoice to be updated.
+     * @param invoice The updated invoice object containing the new details.
+     * @return The updated invoice object.
+     * @throws InvoiceNotFoundException If the invoice with the provided ID is not found.
+     */
     @Transactional
     Invoice updateInvoice(Long id, Invoice invoice) {
-        Invoice existingInvoice =
-                invoiceRepository.findById(id)
-                        .orElseThrow { new InvoiceNotFoundException(id) }
+        Invoice existingInvoice = getExistingInvoice(id)
 
-        existingInvoice.number = invoice.number
-        existingInvoice.invoiceDate = invoice.invoiceDate
-        existingInvoice.dueDate = invoice.dueDate
-
-        if (invoice.buyer != null) {
-            if (invoice.buyer.id != null) {
-                Buyer existingBuyer = buyerRepository.findById(invoice.buyer.id)
-                        .orElseThrow {
-                            new IllegalArgumentException("Invalid Buyer ID: " + invoice.buyer.id)
-                        }
-                existingBuyer.name = invoice.buyer.name
-                existingInvoice.buyer = buyerRepository.save(existingBuyer)
-            } else {
-                existingInvoice.buyer = buyerRepository.save(invoice.buyer)
-            }
-        }
-
-        if (invoice.supplier != null) {
-            if (invoice.supplier.id != null) {
-                Supplier existingSupplier = supplierRepository.findById(invoice.supplier.id)
-                        .orElseThrow {
-                            new IllegalArgumentException("Invalid Supplier ID: " + invoice.supplier.id)
-                        }
-                existingSupplier.name = invoice.supplier.name
-                existingInvoice.supplier = supplierRepository.save(existingSupplier)
-            } else {
-                existingInvoice.supplier = supplierRepository.save(invoice.supplier)
-            }
-        }
-
-        if (invoice.items != null) {
-            itemRepository.deleteAll(existingInvoice.items)
-
-            existingInvoice.items.clear()
-
-            for (Item item : invoice.items) {
-                item.itemId = null
-                item.invoice = existingInvoice
-                existingInvoice.items.add(item)
-            }
-            itemRepository.saveAll(existingInvoice.items)
-        }
+        updateInvoiceDetails(existingInvoice, invoice)
+        updateBuyer(existingInvoice, invoice)
+        updateSupplier(existingInvoice, invoice)
+        updateItems(existingInvoice, invoice)
 
         return invoiceRepository.save(existingInvoice)
     }
 
+    /**
+     * Deletes an invoice by its ID.
+     *
+     * @param id the ID of the invoice to delete
+     * @throws InvoiceNotFoundException if no invoice with the given ID is found
+     */
     @Transactional
     void deleteInvoice(Long id) {
         if (!invoiceRepository.existsById(id)) {
             throw new InvoiceNotFoundException(id)
         }
         invoiceRepository.deleteById(id)
+    }
+
+    private Invoice getExistingInvoice(Long id) {
+        return invoiceRepository.findById(id)
+                .orElseThrow {
+                    new InvoiceNotFoundException(id)
+                }
+    }
+
+    private void saveBuyerIfNecessary(Invoice invoice) {
+        if (invoice.buyer.id == null) {
+            invoice.buyer = buyerRepository.save(invoice.buyer)
+        }
+    }
+
+    private void saveSupplierIfNecessary(Invoice invoice) {
+        if (invoice.supplier.id == null) {
+            invoice.supplier = supplierRepository.save(invoice.supplier)
+        }
+    }
+
+    private void saveItemsIfNecessary(Invoice invoice) {
+        for (Item item : invoice.items) {
+            item.invoice = invoice
+        }
+        invoice.items = itemRepository.saveAll(invoice.items)
+    }
+
+    private void updateInvoiceDetails(Invoice existingInvoice, Invoice updatedInvoice) {
+        existingInvoice.number = updatedInvoice.number
+        existingInvoice.invoiceDate = updatedInvoice.invoiceDate
+        existingInvoice.dueDate = updatedInvoice.dueDate
+    }
+
+    private void updateBuyer(Invoice existingInvoice, Invoice updatedInvoice) {
+        Buyer updatedInvoiceBuyer = updatedInvoice.buyer
+
+        if (updatedInvoiceBuyer != null) {
+            if (updatedInvoiceBuyer.id != null) {
+                Buyer existingBuyer = buyerRepository.findById(updatedInvoiceBuyer.id)
+                        .orElseThrow {
+                            new IllegalArgumentException("Invalid Buyer ID: " + updatedInvoiceBuyer.id)
+                        }
+                existingBuyer.name = updatedInvoiceBuyer.name
+                existingInvoice.buyer = buyerRepository.save(existingBuyer)
+            } else {
+                existingInvoice.buyer = buyerRepository.save(updatedInvoiceBuyer)
+            }
+        }
+    }
+
+    private void updateSupplier(Invoice existingInvoice, Invoice updatedInvoice) {
+        Supplier updatedInvoiceSupplier = updatedInvoice.supplier
+
+        if (updatedInvoiceSupplier != null) {
+            //indicates an existing supplier
+            if (updatedInvoiceSupplier.id != null) {
+                Supplier existingSupplier = supplierRepository.findById(updatedInvoiceSupplier.id)
+                        .orElseThrow {
+                            new IllegalArgumentException("Invalid Supplier ID: " + updatedInvoiceSupplier.id)
+                        }
+                existingSupplier.name = updatedInvoiceSupplier.name
+                existingInvoice.supplier = supplierRepository.save(existingSupplier)
+            } else {
+                existingInvoice.supplier = supplierRepository.save(updatedInvoiceSupplier)
+            }
+        }
+    }
+
+    private void updateItems(Invoice existingInvoice, Invoice updatedInvoice) {
+        if (updatedInvoice.items != null) {
+            // Delete existing items associated with the invoice from the database
+            itemRepository.deleteAll(existingInvoice.items)
+
+            // Clear existing items list of the invoice object
+            existingInvoice.items.clear()
+
+            for (Item item : updatedInvoice.items) {
+                // Reset item ID to null (indicating a new item)
+                item.itemId = null
+                item.invoice = existingInvoice
+                existingInvoice.items.add(item)
+            }
+            itemRepository.saveAll(existingInvoice.items)
+        }
     }
 }
