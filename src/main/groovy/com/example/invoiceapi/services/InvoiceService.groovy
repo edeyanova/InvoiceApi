@@ -50,8 +50,7 @@ class InvoiceService {
      */
     @Transactional
     Invoice getInvoiceById(Long id) {
-        invoiceRepository.findById(id)
-                .orElseThrow { new InvoiceNotFoundException(id) }
+        return getExistingInvoice(id)
     }
 
     /**

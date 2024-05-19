@@ -10,7 +10,9 @@ import com.example.invoiceapi.repositories.InvoiceRepository
 import com.example.invoiceapi.repositories.ItemRepository
 import com.example.invoiceapi.repositories.SupplierRepository
 import com.example.invoiceapi.services.InvoiceService
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.mockito.MockitoAnnotations
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
@@ -41,11 +43,16 @@ class InvoiceServiceTests {
     @MockBean
     ItemRepository itemRepository
 
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this)
+    }
+
     @Test
     void shouldReturnAllInvoices() {
         List<Invoice> invoices = [
-                new Invoice(id: 1, number: "INV-001"),
-                new Invoice(id: 2, number: "INV-002")
+                new Invoice(id: 1, number: "001"),
+                new Invoice(id: 2, number: "002")
         ]
         when(invoiceRepository.findAll()).thenReturn(invoices)
 
@@ -57,7 +64,7 @@ class InvoiceServiceTests {
     @Test
     void shouldReturnInvoiceById() {
         Long invoiceId = 1L
-        Invoice invoice = new Invoice(id: invoiceId, number: "INV-001")
+        Invoice invoice = new Invoice(id: invoiceId, number: "001")
         Optional<Invoice> optionalInvoice = Optional.of(invoice)
 
         when(invoiceRepository.findById(invoiceId)).thenReturn(optionalInvoice)
@@ -91,7 +98,7 @@ class InvoiceServiceTests {
                 quantity: 3, amount: new BigDecimal("20.0")
         )
         Invoice invoice = new Invoice(
-                id: null, number: "INV-001", buyer: buyer,
+                id: null, number: "001", buyer: buyer,
                 supplier: supplier, items: [item1, item2]
         )
 
@@ -107,7 +114,7 @@ class InvoiceServiceTests {
         )
         List<Item> savedItems = [savedItem1, savedItem2]
         Invoice savedInvoice = new Invoice(
-                id: 1, number: "INV-001", buyer: savedBuyer,
+                id: 1, number: "001", buyer: savedBuyer,
                 supplier: savedSupplier, items: savedItems
         )
 
@@ -133,7 +140,7 @@ class InvoiceServiceTests {
     void shouldUpdateInvoice() {
         Invoice invoice = new Invoice()
         invoice.setId(1L)
-        invoice.setNumber("INV-001")
+        invoice.setNumber("001")
         invoice.setInvoiceDate(LocalDate.now())
         invoice.setDueDate(LocalDate.now().plusDays(30))
 
@@ -141,7 +148,7 @@ class InvoiceServiceTests {
         when(invoiceRepository.save(any(Invoice.class))).thenReturn(invoice)
 
         Invoice anotherInvoice = invoice
-        anotherInvoice.setNumber("Inv-002")
+        anotherInvoice.setNumber("002")
 
         Invoice updatedInvoice = invoiceService.updateInvoice(1L, anotherInvoice)
 
@@ -152,11 +159,11 @@ class InvoiceServiceTests {
 
     @Test
     void shouldDeleteInvoiceById() {
-        when(invoiceRepository.existsById(anyLong())).thenReturn(true);
+        when(invoiceRepository.existsById(anyLong())).thenReturn(true)
 
-        invoiceService.deleteInvoice(1L);
+        invoiceService.deleteInvoice(1L)
 
-        verify(invoiceRepository, times(1)).deleteById(1L);
+        verify(invoiceRepository, times(1)).deleteById(1L)
     }
 
     @Test
