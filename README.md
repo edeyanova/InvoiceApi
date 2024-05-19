@@ -50,8 +50,6 @@ Once the application is running, you can access the API at http://localhost:8080
   - endDate: The end date of the invoice date range (format: YYYY-MM-DD).
   - number: The invoice number to filter by.
 
-  Response: A list of all invoices, optionally sorted and filtered.
-
   Example Queries:
   
   Retrieve all invoices sorted by invoice date in ascending order (default):
@@ -63,6 +61,8 @@ Once the application is running, you can access the API at http://localhost:8080
   ```sh
   GET /invoices?startDate=2024-05-05&endDate=2024-09-09
   ```
+
+  Response: A list of all invoices, optionally sorted and filtered.
 
 - Retrieve a Single Invoice by ID: 
   GET /invoices/{id}
