@@ -14,6 +14,7 @@ It supports CRUD operations (Create, Read, Update, Delete) for invoices.
 - Retrieve all invoices
 - Update an existing invoice
 - Delete an invoice by its ID
+- Sort and filter invoices
 
 ## Running the Project
 ```sh
@@ -42,7 +43,26 @@ Once the application is running, you can access the API at http://localhost:8080
 - Retrieve All Invoices
   GET /invoices
 
-  Response: A list of all invoices.
+  Optional Query Parameters for Sorting and Filtering:
+  - sortBy: The field to sort by.
+  - direction: The sort direction, either asc for ascending or desc for descending (default is asc).
+  - startDate: The start date of the invoice date range (format: YYYY-MM-DD).
+  - endDate: The end date of the invoice date range (format: YYYY-MM-DD).
+  - number: The invoice number to filter by.
+
+  Response: A list of all invoices, optionally sorted and filtered.
+
+  Example Queries:
+  
+  Retrieve all invoices sorted by invoice date in ascending order (default):
+  ```sh
+  GET /invoices?sortBy=invoiceDate
+  ```
+
+  Retrieve all invoices issued between two dates:
+  ```sh
+  GET /invoices?startDate=2024-05-05&endDate=2024-09-09
+  ```
 
 - Retrieve a Single Invoice by ID: 
   GET /invoices/{id}
