@@ -39,16 +39,18 @@ class InvoiceController {
      *                  Default is 'asc'.
      * @param startDate The start date of the invoice date range. This parameter is optional.
      * @param endDate The end date of the invoice date range. This parameter is optional.
+     * @param number    The invoice number to filter by. This parameter is optional.
      * @return A list of all invoices, optionally sorted by the specified field and direction,
-     *         and filtered by the specified date range.
+     *         and filtered by the specified date range and invoice number.
      */
     @GetMapping
     List<Invoice> getAllInvoices(
             @RequestParam(value = "sortBy", required = false) String sortBy,
             @RequestParam(value = "direction", required = false, defaultValue = "asc") String direction,
             @RequestParam(value = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam(value = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
-        invoiceService.getAllInvoices(sortBy, direction, startDate, endDate)
+            @RequestParam(value = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(value = "number", required = false) String number){
+        invoiceService.getAllInvoices(sortBy, direction, startDate, endDate, number)
     }
 
     /**

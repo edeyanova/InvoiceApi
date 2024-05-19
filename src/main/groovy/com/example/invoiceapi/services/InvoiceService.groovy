@@ -48,27 +48,17 @@ class InvoiceService {
      * @throws InvalidInputException If an invalid sort direction is provided.
      */
     @Transactional
-    List<Invoice> getAllInvoices(String sortBy, String direction, LocalDate startDate, LocalDate endDate) {
-        Sort sort
-
-        if (sortBy == null || sortBy.isEmpty()) {
-            sort = Sort.unsorted()
-        } else {
-            try {
-                sort = Sort.by(Sort.Direction.fromString(direction), sortBy)
-            } catch (IllegalArgumentException ignored) {
-                throw new InvalidInputException("Invalid sort direction: " + direction)
-            }
-        }
+    List<Invoice> getAllInvoices(String sortBy, String direction, LocalDate startDate, LocalDate endDate, String number) {
+        Sort sort = getSort(sortBy, direction)
 
         if (startDate != null && endDate != null) {
-            return invoiceRepository.findAllByInvoiceDateBetween(startDate, endDate, sort)
+            return getInvoicesByDateRange(startDate, endDate, number, sort)
         } else if (startDate != null) {
-            return invoiceRepository.findAllByInvoiceDateAfter(startDate, sort)
+            return getInvoicesAfterDate(startDate, number, sort)
         } else if (endDate != null) {
-            return invoiceRepository.findAllByInvoiceDateBefore(endDate, sort)
+            return getInvoicesBeforeDate(endDate, number, sort)
         } else {
-            return sort.isUnsorted() ? invoiceRepository.findAll() : invoiceRepository.findAll(sort)
+            return getInvoicesByNumber(number, sort)
         }
     }
 
@@ -217,6 +207,52 @@ class InvoiceService {
                 existingInvoice.items.add(item)
             }
             itemRepository.saveAll(existingInvoice.items)
+        }
+    }
+
+    private Sort getSort(String sortBy, String direction) {
+        Sort sort
+        if (sortBy == null || sortBy.isEmpty()) {
+            sort = Sort.unsorted()
+        } else {
+            try {
+                sort = Sort.by(Sort.Direction.fromString(direction), sortBy)
+            } catch (IllegalArgumentException ignored) {
+                throw new InvalidInputException("Invalid sort direction: " + direction)
+            }
+        }
+        return sort
+    }
+
+    private List<Invoice> getInvoicesByDateRange(LocalDate startDate, LocalDate endDate, String number, Sort sort) {
+        if (number != null) {
+            return invoiceRepository.findAllByInvoiceDateBetweenAndNumber(startDate, endDate, number, sort)
+        } else {
+            return invoiceRepository.findAllByInvoiceDateBetween(startDate, endDate, sort)
+        }
+    }
+
+    private List<Invoice> getInvoicesAfterDate(LocalDate startDate, String number, Sort sort) {
+        if (number != null) {
+            return invoiceRepository.findAllByInvoiceDateAfterAndNumber(startDate, number, sort)
+        } else {
+            return invoiceRepository.findAllByInvoiceDateAfter(startDate, sort)
+        }
+    }
+
+    private List<Invoice> getInvoicesBeforeDate(LocalDate endDate, String number, Sort sort) {
+        if (number != null) {
+            return invoiceRepository.findAllByInvoiceDateBeforeAndNumber(endDate, number, sort)
+        } else {
+            return invoiceRepository.findAllByInvoiceDateBefore(endDate, sort)
+        }
+    }
+
+    private List<Invoice> getInvoicesByNumber(String number, Sort sort) {
+        if (number != null) {
+            return invoiceRepository.findAllByNumber(number, sort)
+        } else {
+            return sort.isUnsorted() ? invoiceRepository.findAll() : invoiceRepository.findAll(sort)
         }
     }
 }
