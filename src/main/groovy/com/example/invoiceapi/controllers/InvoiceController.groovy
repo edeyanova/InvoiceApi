@@ -45,9 +45,10 @@ class InvoiceController {
      * @throws InvoiceNotFoundException If no invoice with the given ID is found.
      */
     @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     Invoice getInvoiceById(@PathVariable("id") Long id) {
         try {
-            invoiceService.getInvoiceById(id)
+            return invoiceService.getInvoiceById(id)
         } catch (InvoiceNotFoundException e) {
             throw e
         }
@@ -74,9 +75,10 @@ class InvoiceController {
      * @return The updated invoice.
      */
     @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     Invoice updateInvoice(@PathVariable("id") Long id, @RequestBody Invoice invoice) {
         validateInvoice(invoice)
-        invoiceService.updateInvoice(id, invoice)
+        return invoiceService.updateInvoice(id, invoice)
     }
 
     /**
@@ -102,6 +104,12 @@ class InvoiceController {
         }
         if (invoice.items == null || invoice.items.isEmpty()) {
             throw new InvalidInputException("Invoice must contain at least one item")
+        }
+        if (invoice.invoiceDate == null) {
+            throw new InvalidInputException("Invoice date is required")
+        }
+        if (invoice.dueDate == null) {
+            throw new InvalidInputException("Due date is required")
         }
     }
 }

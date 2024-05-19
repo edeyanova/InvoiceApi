@@ -9,17 +9,17 @@ import org.springframework.web.bind.annotation.ControllerAdvice
 class GlobalExceptionHandler {
 
     @ExceptionHandler(InvoiceNotFoundException)
-    ResponseEntity<String> handleInvoiceNotFoundException(InvoiceNotFoundException e) {
-        ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.message)
+    static ResponseEntity<String> handleInvoiceNotFoundException(InvoiceNotFoundException e) {
+        ResponseEntity.status(HttpStatus.NOT_FOUND).body("Invoice not found with id: " + e.getId())
     }
 
     @ExceptionHandler(InvalidInputException)
-    ResponseEntity<String> handleInvalidInputException(InvalidInputException e) {
+    static ResponseEntity<String> handleInvalidInputException(InvalidInputException e) {
         ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.message)
     }
 
     @ExceptionHandler(Exception)
-    ResponseEntity<String> handleGenericException(Exception e) {
+    static ResponseEntity<String> handleGenericException(Exception e) {
         ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred: " + e.message)
     }
 }
