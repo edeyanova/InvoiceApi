@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 
@@ -28,13 +29,18 @@ class InvoiceController {
     }
 
     /**
-     * Retrieves all invoices.
+     * Retrieves all invoices with optional sorting.
      *
-     * @return A list of all invoices.
+     * @param sortBy The field to sort by. This parameter is optional.
+     * @param direction The sort direction, either 'asc' for ascending or 'desc' for descending.
+     * Default is 'asc'.
+     * @return A list of all invoices, optionally sorted by the specified field and direction.
      */
     @GetMapping
-    List<Invoice> getAllInvoices() {
-        invoiceService.getAllInvoices()
+    List<Invoice> getAllInvoices(
+            @RequestParam(value = "sortBy", required = false) String sortBy,
+            @RequestParam(value = "direction", required = false, defaultValue = "asc") String direction) {
+        invoiceService.getAllInvoices(sortBy, direction)
     }
 
     /**

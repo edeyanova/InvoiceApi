@@ -4,12 +4,14 @@ import com.example.invoiceapi.entities.Buyer
 import com.example.invoiceapi.entities.Invoice
 import com.example.invoiceapi.entities.Item
 import com.example.invoiceapi.entities.Supplier
+import com.example.invoiceapi.exceptions.InvalidInputException
 import com.example.invoiceapi.exceptions.InvoiceNotFoundException
 import com.example.invoiceapi.repositories.BuyerRepository
 import com.example.invoiceapi.repositories.InvoiceRepository
 import com.example.invoiceapi.repositories.ItemRepository
 import com.example.invoiceapi.repositories.SupplierRepository
 import jakarta.transaction.Transactional
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 
 /**
@@ -32,13 +34,26 @@ class InvoiceService {
     }
 
     /**
-     * Retrieves all invoices.
+     * Retrieves all invoices with optional sorting.
      *
-     * @return a list of all invoices
+     * @param sortBy The field to sort by.
+     * @param direction The sort direction (asc or desc).
+     * @return A list of all invoices.
      */
     @Transactional
-    List<Invoice> getAllInvoices() {
-        invoiceRepository.findAll()
+    List<Invoice> getAllInvoices(String sortBy, String direction) {
+        if (sortBy == null || sortBy.isEmpty()) {
+            return invoiceRepository.findAll()
+        }
+
+        Sort sort
+        try {
+            sort = Sort.by(Sort.Direction.fromString(direction), sortBy)
+        } catch (IllegalArgumentException ignored) {
+            throw new InvalidInputException("Invalid sort direction: " + direction)
+        }
+
+        return invoiceRepository.findAll(sort)
     }
 
     /**
