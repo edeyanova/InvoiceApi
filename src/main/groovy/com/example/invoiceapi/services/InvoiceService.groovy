@@ -14,6 +14,8 @@ import jakarta.transaction.Transactional
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 
+import java.time.LocalDate
+
 /**
  * Service class responsible for handling operations related to invoices.
  */
@@ -34,26 +36,40 @@ class InvoiceService {
     }
 
     /**
-     * Retrieves all invoices with optional sorting.
+     * Retrieves all invoices with optional sorting and date range filtering.
      *
-     * @param sortBy The field to sort by.
-     * @param direction The sort direction (asc or desc).
-     * @return A list of all invoices.
+     * @param sortBy The field to sort by. This parameter is optional.
+     * @param direction The sort direction, either 'asc' for ascending or 'desc' for descending.
+     *                 Default is 'asc'.
+     * @param startDate The start date of the invoice date range. This parameter is optional.
+     * @param endDate The end date of the invoice date range. This parameter is optional.
+     * @return A list of all invoices, optionally sorted by the specified field and direction,
+     *         and filtered by the specified date range.
+     * @throws InvalidInputException If an invalid sort direction is provided.
      */
     @Transactional
-    List<Invoice> getAllInvoices(String sortBy, String direction) {
-        if (sortBy == null || sortBy.isEmpty()) {
-            return invoiceRepository.findAll()
-        }
-
+    List<Invoice> getAllInvoices(String sortBy, String direction, LocalDate startDate, LocalDate endDate) {
         Sort sort
-        try {
-            sort = Sort.by(Sort.Direction.fromString(direction), sortBy)
-        } catch (IllegalArgumentException ignored) {
-            throw new InvalidInputException("Invalid sort direction: " + direction)
+
+        if (sortBy == null || sortBy.isEmpty()) {
+            sort = Sort.unsorted()
+        } else {
+            try {
+                sort = Sort.by(Sort.Direction.fromString(direction), sortBy)
+            } catch (IllegalArgumentException ignored) {
+                throw new InvalidInputException("Invalid sort direction: " + direction)
+            }
         }
 
-        return invoiceRepository.findAll(sort)
+        if (startDate != null && endDate != null) {
+            return invoiceRepository.findAllByInvoiceDateBetween(startDate, endDate, sort)
+        } else if (startDate != null) {
+            return invoiceRepository.findAllByInvoiceDateAfter(startDate, sort)
+        } else if (endDate != null) {
+            return invoiceRepository.findAllByInvoiceDateBefore(endDate, sort)
+        } else {
+            return sort.isUnsorted() ? invoiceRepository.findAll() : invoiceRepository.findAll(sort)
+        }
     }
 
     /**

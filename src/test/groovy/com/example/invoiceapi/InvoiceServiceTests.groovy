@@ -56,7 +56,7 @@ class InvoiceServiceTests {
         ]
         when(invoiceRepository.findAll()).thenReturn(invoices)
 
-        List<Invoice> result = invoiceService.getAllInvoices(null, null)
+        List<Invoice> result = invoiceService.getAllInvoices(null, null, null, null)
 
         assertThat(result).isEqualTo(invoices)
     }

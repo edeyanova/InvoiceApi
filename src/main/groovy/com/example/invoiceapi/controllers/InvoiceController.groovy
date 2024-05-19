@@ -4,6 +4,7 @@ import com.example.invoiceapi.entities.Invoice
 import com.example.invoiceapi.exceptions.InvalidInputException
 import com.example.invoiceapi.exceptions.InvoiceNotFoundException
 import com.example.invoiceapi.services.InvoiceService
+import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -15,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
+
+import java.time.LocalDate
 
 /**
  * Controller class responsible for handling invoice-related HTTP requests.
@@ -29,18 +32,23 @@ class InvoiceController {
     }
 
     /**
-     * Retrieves all invoices with optional sorting.
+     * Retrieves all invoices with optional sorting and date range filtering.
      *
      * @param sortBy The field to sort by. This parameter is optional.
      * @param direction The sort direction, either 'asc' for ascending or 'desc' for descending.
-     * Default is 'asc'.
-     * @return A list of all invoices, optionally sorted by the specified field and direction.
+     *                  Default is 'asc'.
+     * @param startDate The start date of the invoice date range. This parameter is optional.
+     * @param endDate The end date of the invoice date range. This parameter is optional.
+     * @return A list of all invoices, optionally sorted by the specified field and direction,
+     *         and filtered by the specified date range.
      */
     @GetMapping
     List<Invoice> getAllInvoices(
             @RequestParam(value = "sortBy", required = false) String sortBy,
-            @RequestParam(value = "direction", required = false, defaultValue = "asc") String direction) {
-        invoiceService.getAllInvoices(sortBy, direction)
+            @RequestParam(value = "direction", required = false, defaultValue = "asc") String direction,
+            @RequestParam(value = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(value = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        invoiceService.getAllInvoices(sortBy, direction, startDate, endDate)
     }
 
     /**
